@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">PetCase</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="Home_fragment">Home fragment</string>
+    <string name="Pets_fragment">Pets fragment</string>
+    <string name="Profile_fragment">Profile fragment</string>
+    <string name="Setting_fragment">Setting fragment</string>
+
+</resources>
