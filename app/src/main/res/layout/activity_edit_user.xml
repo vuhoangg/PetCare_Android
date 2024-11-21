@@ -6,19 +6,19 @@
 
     <!-- Input fields to edit user info -->
     <EditText
-        android:id="@+id/edtUserName"
+        android:id="@+id/edtPetName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="User Name"/>
 
     <EditText
-        android:id="@+id/edtEmail"
+        android:id="@+id/edtBirthPet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Email"/>
 
     <EditText
-        android:id="@+id/edtPhone"
+        android:id="@+id/edtColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Phone Number"/>

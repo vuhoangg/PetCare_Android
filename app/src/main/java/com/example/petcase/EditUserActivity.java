@@ -6,13 +6,12 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.petcase.Domain.User;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.example.petcase.R;
 
 public class EditUserActivity extends AppCompatActivity {
 
@@ -26,9 +25,9 @@ public class EditUserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_user);
 
         // Ánh xạ các View
-        edtUserName = findViewById(R.id.edtUserName);
-        edtEmail = findViewById(R.id.edtEmail);
-        edtPhone = findViewById(R.id.edtPhone);
+        edtUserName = findViewById(R.id.edtPetName);
+        edtEmail = findViewById(R.id.edtBirthPet);
+        edtPhone = findViewById(R.id.edtColor);
         edtAddresss = findViewById(R.id.edtAddresss);
         btnSaveUser = findViewById(R.id.btnSaveUser);
 
