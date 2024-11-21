@@ -39,10 +39,10 @@ public class CRUDUserActivity extends AppCompatActivity {
 
         // Ánh xạ Button từ XML bằng id
         AddUser = findViewById(R.id.AddUser);
-        edtUserName = findViewById(R.id.edtUserName);
-        edtEmail = findViewById(R.id.edtEmail);
-        edtPhone = findViewById(R.id.edtPhone);
-        edtAdress = findViewById(R.id.edtAdress);
+        edtUserName = findViewById(R.id.edtPetName);
+        edtEmail = findViewById(R.id.edtBirthPet);
+        edtPhone = findViewById(R.id.edtColor);
+        edtAdress = findViewById(R.id.edtimageUrl);
 
         // Đặt sự kiện onClick cho Button
         AddUser.setOnClickListener(new View.OnClickListener() {
