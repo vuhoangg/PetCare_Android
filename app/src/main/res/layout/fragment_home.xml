@@ -7,6 +7,10 @@
     android:background="@color/white"
     tools:context=".HomeFragment"
     >
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <!-- Profile Section với background màu xanh -->
     <androidx.cardview.widget.CardView
@@ -137,7 +141,7 @@
 
         <!-- Settings Button -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/settingsButton"
+            android:id="@+id/HealthRecordButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -147,7 +151,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:padding="16dp">
@@ -161,7 +165,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Cài đặt"
+                    android:text="Hồ sơ"
                     android:textSize="14sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

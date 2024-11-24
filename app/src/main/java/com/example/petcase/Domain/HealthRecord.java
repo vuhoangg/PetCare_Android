@@ -6,17 +6,17 @@ public class HealthRecord {
     private String petId;          // ID thú cưng liên quan
     private String date;
     private String description;
-    private String veterinarian;
+    private String vaccine;
 
     public HealthRecord() {
     }
 
-    public HealthRecord(String healthRecordId, String petId, String date, String description, String veterinarian) {
+    public HealthRecord(String healthRecordId, String petId, String date, String description, String vaccine) {
         this.healthRecordId = healthRecordId;
         this.petId = petId;
         this.date = date;
         this.description = description;
-        this.veterinarian = veterinarian;
+        this.vaccine = vaccine;
     }
 
     public String getHealthRecordId() {
@@ -51,12 +51,12 @@ public class HealthRecord {
         this.description = description;
     }
 
-    public String getVeterinarian() {
-        return veterinarian;
+    public String getVaccine() {
+        return vaccine;
     }
 
-    public void setVeterinarian(String veterinarian) {
-        this.veterinarian = veterinarian;
+    public void setVaccine(String vaccine) {
+        this.vaccine = vaccine;
     }
 }
 

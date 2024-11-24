@@ -1,5 +1,6 @@
 package com.example.petcase.Adapter;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +11,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.petcase.AddHealthRecord;
 import com.example.petcase.Domain.Pet;
 import com.example.petcase.EditPetActivity;
 import com.example.petcase.EditUserActivity;
+import com.example.petcase.HomeActivity;
+import com.example.petcase.HomeFragment;
 import com.example.petcase.PetFragment;
 import com.example.petcase.R;
 import com.google.firebase.database.DatabaseReference;
@@ -48,9 +53,20 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
                 .into(holder.newPetimg);
         holder.newPetname.setText(pet.getName());
 
+        holder.newPetimg.setOnClickListener(v -> {
+            // Create an intent to open AddHealthRecordActivity
+            Intent intent = new Intent(v.getContext(), AddHealthRecord.class);
+
+            // Pass the pet data to the new activity
+            intent.putExtra("petId", pet.getPetId());
+
+            // Mở HomeActivity
+            v.getContext().startActivity(intent);
+        });
+
 
         // Thiết lập sự kiện click cho nút Sửa
-        holder.newPetimg.setOnClickListener(v -> {
+        holder.btnPetUpdate.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), EditPetActivity.class);
             intent.putExtra("PET_ID", pet.getPetId());
             intent.putExtra("PET_NAME", pet.getName());
@@ -76,7 +92,7 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
 
             myRef.removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    Toast.makeText(v.getContext(), "User deleted successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(v.getContext(), "Pet deleted successfully", Toast.LENGTH_SHORT).show();
                     // Kiểm tra `position` có hợp lệ không trước khi xóa
                     if (position >= 0 && position < petList.size()) {
                         petList.remove(position);
@@ -96,8 +112,6 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
         });
 
 
-
-
     }
 
     @Override
@@ -108,13 +122,14 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
     public static class PetViewHolder extends RecyclerView.ViewHolder {
         TextView newPetname;
         ImageView newPetimg;
-        Button btnEdit, btnPetDelete;
+        Button  btnPetDelete, btnPetUpdate;
+
 
         public PetViewHolder(@NonNull View itemView) {
             super(itemView);
             newPetimg = itemView.findViewById(R.id.new_img);
             newPetname = itemView.findViewById(R.id.new_product_name);
-//            btnEdit = itemView.findViewById(R.id.btnEdit);
+            btnPetUpdate = itemView.findViewById(R.id.btnPetUpdate);
             btnPetDelete = itemView.findViewById(R.id.btnPetDelete);
         }
     }
