@@ -34,6 +34,7 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
 
     public PetAdapter(List<Pet> petList, PetFragment PetFragment) {
         this.petList = petList;
+
     }
 
     @NonNull

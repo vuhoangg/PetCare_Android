@@ -3,6 +3,7 @@ package com.example.petcase;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -36,9 +38,12 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private ReminderAdapter reminderAdapter;
     private List<Reminders> reminderList;
-    private List<HealthRecord> healthRecordList= new ArrayList<>();
+    private List<HealthRecord> healthRecordList = new ArrayList<>();
     private ImageView petAvatar;
     private TextView petName, petAge;
+
+    private ValueEventListener healthRecordListener;
+    private Query healthRecordQuery;
 
     public HomeFragment() {
         // Constructor rỗng cần thiết cho Fragment
@@ -49,28 +54,33 @@ public class HomeFragment extends Fragment {
         // Inflate layout cho fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Khởi tạo RecyclerView và Adapter
-        initRecyclerView(view);
-
         // Liên kết các View cho pet
         petAvatar = view.findViewById(R.id.petAvatar);
         petName = view.findViewById(R.id.petName);
         petAge = view.findViewById(R.id.petAge);
 
-        // Kiểm tra và nhận dữ liệu từ Bundle
-        handleBundleData();
+        // Khởi tạo RecyclerView và Adapter
+        initRecyclerView(view);
 
-        // Lấy dữ liệu từ Firebase và cập nhật thông tin Pet và Reminder
-        fetchPetData();
-        fetchReminderData();
-        fetchHealthRecordData();
+        // Lấy dữ liệu từ SharedPreferences
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("Pet", Context.MODE_PRIVATE);
+        String petId = sharedPreferences.getString("petId", null);
+
+        // Nếu đã có petId lưu trữ, thì lấy dữ liệu Pet, Reminder, HealthRecord
+        if (petId != null) {
+            fetchPetData(petId);
+        } else {
+            // Nếu chưa chọn pet, yêu cầu người dùng chọn
+            petName.setText("Select a pet");
+            petAge.setText("Unknown age");
+            petAvatar.setImageResource(R.drawable.corgi01);
+        }
 
         // Set OnClickListeners for CardViews
         setupCardViewListeners(view);
         return view;
     }
 
-    // Khởi tạo RecyclerView và Adapter
     private void initRecyclerView(View view) {
         recyclerView = view.findViewById(R.id.recyclerViewReminders);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -80,87 +90,79 @@ public class HomeFragment extends Fragment {
     }
 
     private void showReminders() {
-        // Hiển thị danh sách Reminders
         recyclerView.setVisibility(View.VISIBLE);
         recyclerView.setAdapter(reminderAdapter);
         reminderAdapter.notifyDataSetChanged();
     }
 
     private void showHealthRecords() {
-        // Hiển thị danh sách HealthRecords
         recyclerView.setVisibility(View.VISIBLE);
         HealthRecordAdapter healthRecordAdapter = new HealthRecordAdapter(healthRecordList, this);
         recyclerView.setAdapter(healthRecordAdapter);
         healthRecordAdapter.notifyDataSetChanged();
     }
-    // Xử lý dữ liệu nhận từ Bundle
-    private void handleBundleData() {
-        if (getArguments() != null) {
-            String petId = getArguments().getString("petId", "1732174110044"); // Cung cấp giá trị mặc định nếu không có petId
-            String petNameFromBundle = getArguments().getString("petName", "Unknown");
-            String petAvatarFromBundle = getArguments().getString("petAvatar", "");
 
-            // Lưu dữ liệu vào SharedPreferences
-            SharedPreferences sharedPreferences = getContext().getSharedPreferences("PetData", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            Log.d(TAG, "Pet ID: " + petId);
-            Log.d(TAG, "Pet Name: " + petNameFromBundle);
-            Log.d(TAG, "Pet Avatar: " + petAvatarFromBundle);
-        } else {
-            Log.d(TAG, "No data received from PetFragment");
+    private void fetchReminderData(String petId) {
+        if (petId == null) {
+            Toast.makeText(getContext(), "Please select a pet to see reminders.", Toast.LENGTH_SHORT).show();
+            return;
         }
-    }
 
-    // Lấy dữ liệu Reminder từ Firebase
-    private void fetchReminderData() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Reminders");
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                reminderList.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Reminders reminder = dataSnapshot.getValue(Reminders.class);
-                    if (reminder != null) {
-                        reminderList.add(reminder);
+        DatabaseReference reminderRef = FirebaseDatabase.getInstance().getReference("Reminders");
+
+        reminderRef.orderByChild("petId").equalTo(petId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        reminderList.clear();
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            Reminders reminder = dataSnapshot.getValue(Reminders.class);
+                            if (reminder != null) {
+                                reminderList.add(reminder);
+                            }
+                        }
+
+                        showReminders();
                     }
-                }
-                reminderAdapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    // Lấy dữ liệu HealthRecord từ Firebase
-    private void fetchHealthRecordData() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("HealthRecord");
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                healthRecordList.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    HealthRecord healthRecord = dataSnapshot.getValue(HealthRecord.class);
-                    if (healthRecord != null) {
-                        healthRecordList.add(healthRecord);
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(getContext(), "Error fetching reminders: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                }
-                // Nếu đang hiển thị HealthRecords, thông báo Adapter mới
-                if (recyclerView.getAdapter() instanceof HealthRecordAdapter) {
-                    ((HealthRecordAdapter) recyclerView.getAdapter()).notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                });
     }
 
-    // Set up OnClickListeners for CardViews
+    private void fetchHealthRecordData(String petId) {
+        if (petId == null) {
+            Toast.makeText(getContext(), "Please select a pet to see health records.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DatabaseReference healthRecordRef = FirebaseDatabase.getInstance()
+                .getReference("HealthRecord");
+
+        healthRecordRef.orderByChild("petId").equalTo(petId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        healthRecordList.clear();
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            HealthRecord healthRecord = dataSnapshot.getValue(HealthRecord.class);
+                            if (healthRecord != null) {
+                                healthRecordList.add(healthRecord);
+                            }
+                        }
+
+                        showHealthRecords();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(getContext(), "Error fetching health records: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void setupCardViewListeners(View view) {
         view.findViewById(R.id.calendarButton).setOnClickListener(v -> {
             Log.d(TAG, "Calendar Button Clicked");
@@ -176,46 +178,76 @@ public class HomeFragment extends Fragment {
             Log.d(TAG, "Health Record Button Clicked");
             showHealthRecords();
         });
+
+        petAvatar.setOnClickListener(v -> {
+            Intent intent = new Intent(requireActivity(), SelectPet.class);
+            startActivityForResult(intent, 100);
+        });
     }
-    // Lấy dữ liệu Pet từ Firebase
-    private void fetchPetData() {
-        // Lấy petId từ Bundle
-        String petId = getArguments() != null ? getArguments().getString("petId") : "1732174110044";  // Kiểm tra petId trước khi sử dụng
 
-        if (petId != null) {
-            DatabaseReference petRef = FirebaseDatabase.getInstance().getReference("Pet").child(petId);
-            petRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        // Lấy dữ liệu pet từ snapshot
-                        String name = snapshot.child("name").getValue(String.class);
-                        String age = snapshot.child("birth").getValue(String.class);
-                        String avatarUrl = snapshot.child("imageUrl").getValue(String.class);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == requireActivity().RESULT_OK && data != null) {
+            // Lấy dữ liệu trả về
+            String petId = data.getStringExtra("petId");
+            String petNameStr = data.getStringExtra("petName");
+            String petAvatarUrl = data.getStringExtra("petAvatar");
+            String petBirth = data.getStringExtra("birth");
 
-                        // Hiển thị thông tin pet
-                        petName.setText(name != null ? name : "Unknown");
-                        petAge.setText(age != null ? age : "Unknown age");
+            petName.setText(petNameStr != null ? petNameStr : "Unknown");
+            petAge.setText(petBirth != null ? petBirth : "Unknown age");
 
-                        // Sử dụng Glide để tải ảnh
-                        Glide.with(requireContext())
-                                .load(avatarUrl != null && !avatarUrl.isEmpty() ? avatarUrl : R.drawable.corgi01)
-                                .placeholder(R.drawable.corgi01)
-                                .error(R.drawable.corgi01)
-                                .into(petAvatar);
-                    } else {
-                        Toast.makeText(getContext(), "Pet data not found!", Toast.LENGTH_SHORT).show();
-                    }
-                }
+            Glide.with(requireContext())
+                    .load(petAvatarUrl != null && !petAvatarUrl.isEmpty() ? petAvatarUrl : R.drawable.corgi01)
+                    .placeholder(R.drawable.corgi01)
+                    .error(R.drawable.corgi01)
+                    .into(petAvatar);
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(getContext(), "Error fetching pet data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            Toast.makeText(getContext(), "Pet ID is null", Toast.LENGTH_SHORT).show();
+            // Lưu petId vào SharedPreferences
+            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("Pet", Context.MODE_PRIVATE);
+            sharedPreferences.edit().putString("petId", petId).apply();
+
+            // Gọi lại fetchPetData sau khi có petId
+            fetchPetData(petId);
+        }
+    }
+
+    private void fetchPetData(String petId) {
+        if (petId == null) {
+            Toast.makeText(getContext(), "Pet ID not found. Please select a pet.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
+        DatabaseReference petRef = FirebaseDatabase.getInstance().getReference("Pet").child(petId);
+        petRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    String age = snapshot.child("birth").getValue(String.class);
+                    String avatarUrl = snapshot.child("imageUrl").getValue(String.class);
+
+                    petName.setText(name != null ? name : "Unknown");
+                    petAge.setText(age != null ? age : "Unknown age");
+
+                    Glide.with(requireContext())
+                            .load(avatarUrl != null && !avatarUrl.isEmpty() ? avatarUrl : R.drawable.corgi01)
+                            .placeholder(R.drawable.corgi01)
+                            .error(R.drawable.corgi01)
+                            .into(petAvatar);
+
+                    fetchReminderData(petId);
+                    fetchHealthRecordData(petId);
+                } else {
+                    Toast.makeText(getContext(), "Pet data not found!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Error fetching pet data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

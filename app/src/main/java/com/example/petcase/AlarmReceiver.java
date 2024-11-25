@@ -31,6 +31,9 @@ public class AlarmReceiver extends BroadcastReceiver implements SensorEventListe
     public void onReceive(Context context, Intent intent) {
         Log.d("AlarmReceiver", "onReceive triggered");
 
+        // Lấy thông điệp từ Intent
+        String reminderMessage = intent.getStringExtra("MESSAGE");
+
         // Phát âm thanh báo thức
         mediaPlayer = MediaPlayer.create(context, R.raw.lofichill);
         mediaPlayer.setLooping(true);
@@ -54,10 +57,10 @@ public class AlarmReceiver extends BroadcastReceiver implements SensorEventListe
         }
 
         // Gửi thông báo
-        sendNotification(context);
+        sendNotification(context, reminderMessage);
     }
 
-    private void sendNotification(Context context) {
+    private void sendNotification(Context context, String reminderMessage) {
         // Kiểm tra và tạo Notification Channel nếu chưa có (Chỉ trên Android O trở lên)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
@@ -78,7 +81,7 @@ public class AlarmReceiver extends BroadcastReceiver implements SensorEventListe
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notification = new Notification.Builder(context, CHANNEL_ID)
                     .setContentTitle("Alarm Triggered!")
-                    .setContentText("Tap to stop the alarm.")
+                    .setContentText("Reminder: " + reminderMessage)  // Hiển thị thông điệp reminder
                     .setSmallIcon(R.drawable.baseline_edit_note_24)  // Thay bằng icon bạn muốn
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)

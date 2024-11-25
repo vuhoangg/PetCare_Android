@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -22,11 +23,13 @@ import android.widget.TimePicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.petcase.Domain.Reminders;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.UUID;
 
 public class ProfileFragment extends Fragment {
 
@@ -35,7 +38,6 @@ public class ProfileFragment extends Fragment {
     TextView lblDateAndTime;
     TextView btnSave;
     EditText titleInput;
-
 
     // Calendar instance
     Calendar myCalendar = Calendar.getInstance();
@@ -82,7 +84,7 @@ public class ProfileFragment extends Fragment {
         titleInput = view.findViewById(R.id.titleInput);
 
         // Initialize Firebase Database
-        databaseReminders = FirebaseDatabase.getInstance().getReference("reminders");
+        databaseReminders = FirebaseDatabase.getInstance().getReference("Reminders");
 
         // Date Picker
         btnDate.setOnClickListener(v -> new DatePickerDialog(getContext(), d,
@@ -97,33 +99,53 @@ public class ProfileFragment extends Fragment {
 
         // Phần trong sự kiện Save
         btnSave.setOnClickListener(v -> {
-            String reminderMessage = lblDateAndTime.getText().toString();
+            String reminderMessage = titleInput.getText().toString().trim();
+            String date = DateFormat.getDateInstance().format(myCalendar.getTime());
+            String time = DateFormat.getTimeInstance().format(myCalendar.getTime());
 
             if (reminderMessage.isEmpty()) {
-                Toast.makeText(getContext(), "Please select a date and time!", Toast.LENGTH_SHORT).show();
-            } else {
-                // Lưu vào Firebase (nếu cần)
-                String reminderId = databaseReminders.push().getKey();
-                if (reminderId != null) {
-                    databaseReminders.child(reminderId).setValue(reminderMessage);
-                }
-                String title = titleInput.getText().toString().trim();
-                // Thiết lập báo thức
-                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                Intent intent = new Intent(getContext(), AlarmReceiver.class);
-                intent.putExtra("MESSAGE", "It's time for: " + title);
-
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                        getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                alarmManager.setExact(
-                        AlarmManager.RTC_WAKEUP,
-                        myCalendar.getTimeInMillis(),
-                        pendingIntent
-                );
-
-                Toast.makeText(getContext(), "Reminder saved and alarm set!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Please enter a title!", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            // Lấy petId từ SharedPreferences
+            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("Pet", Context.MODE_PRIVATE);
+            String petId = sharedPreferences.getString("petId", null);
+
+            if (petId == null) {
+                Toast.makeText(getContext(), "No pet selected! Please select a pet first.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Tạo reminderId tự động
+            String reminderId = UUID.randomUUID().toString(); // Tạo UUID duy nhất cho mỗi reminder
+
+            // Tạo đối tượng Reminder để cập nhật
+            Reminders reminder = new Reminders(reminderId, petId, date, time, reminderMessage);
+
+            // Cập nhật Reminder trong Firebase
+            databaseReminders.child(reminderId).setValue(reminder)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            // Thiết lập báo thức
+                            AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                            Intent intent = new Intent(getContext(), AlarmReceiver.class);
+                            intent.putExtra("MESSAGE", reminderMessage); // Chuyển thông điệp của reminder vào Intent
+
+                            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                                    getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                            alarmManager.setExact(
+                                    AlarmManager.RTC_WAKEUP,
+                                    myCalendar.getTimeInMillis(),
+                                    pendingIntent
+                            );
+
+                            Toast.makeText(getContext(), "Reminder updated for your pet!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Failed to update reminder.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
 
         updateLabel();
