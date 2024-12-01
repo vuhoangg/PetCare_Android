@@ -97,9 +97,17 @@ public class HomeFragment extends Fragment {
 
     private void showHealthRecords() {
         recyclerView.setVisibility(View.VISIBLE);
-        HealthRecordAdapter healthRecordAdapter = new HealthRecordAdapter(healthRecordList, this);
-        recyclerView.setAdapter(healthRecordAdapter);
-        healthRecordAdapter.notifyDataSetChanged();
+
+        // Kiểm tra xem RecyclerView đã có adapter hay chưa
+        if (recyclerView.getAdapter() instanceof HealthRecordAdapter) {
+            // Nếu adapter đã tồn tại, chỉ cần thông báo cập nhật
+            HealthRecordAdapter healthRecordAdapter = (HealthRecordAdapter) recyclerView.getAdapter();
+            healthRecordAdapter.notifyDataSetChanged();
+        } else {
+            // Nếu adapter chưa tồn tại, khởi tạo adapter mới
+            HealthRecordAdapter healthRecordAdapter = new HealthRecordAdapter(healthRecordList, this);
+            recyclerView.setAdapter(healthRecordAdapter);
+        }
     }
 
     private void fetchReminderData(String petId) {
@@ -151,6 +159,7 @@ public class HomeFragment extends Fragment {
                             if (healthRecord != null) {
                                 healthRecordList.add(healthRecord);
                             }
+
                         }
 
                         showHealthRecords();

@@ -29,6 +29,12 @@
         android:layout_height="wrap_content"
         android:hint="Address"/>
 
+    <EditText
+        android:id="@+id/edtPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Password"/>
+
     <!-- Save button -->
     <Button
         android:id="@+id/btnSaveUser"

@@ -28,6 +28,7 @@ public class SelectPetAdapter extends RecyclerView.Adapter<SelectPetAdapter.PetV
         this.listener = listener;
     }
 
+
     @NonNull
     @Override
     public PetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -38,6 +39,7 @@ public class SelectPetAdapter extends RecyclerView.Adapter<SelectPetAdapter.PetV
     @Override
     public void onBindViewHolder(@NonNull PetViewHolder holder, int position) {
         Pet pet = petList.get(position);
+
         Glide.with(holder.petImage.getContext())
                 .load(pet.getImageUrl())
                 .placeholder(R.drawable.corgi01)

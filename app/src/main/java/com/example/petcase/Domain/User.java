@@ -7,19 +7,24 @@ public class User {
     private String email;
     private String phoneNumber;
     private String address;
+    private String password; // Thêm trường password
 
-    public User() {
+    // Constructor mặc định
+    public User(String userId, String name, String email, String phone, String address) {
 
     }
 
-    public User(String userId, String userName, String email, String phoneNumber, String address) {
+    // Constructor đầy đủ
+    public User(String userId, String userName, String email, String phoneNumber, String address, String password) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
+        this.password = password;
     }
 
+    // Getter và Setter cho các thuộc tính
     public String getUserId() {
         return userId;
     }
@@ -59,5 +64,12 @@ public class User {
     public void setAddress(String address) {
         this.address = address;
     }
-}
 
+    public String getPassword() { // Getter cho password
+        return password;
+    }
+
+    public void setPassword(String password) { // Setter cho password
+        this.password = password;
+    }
+}

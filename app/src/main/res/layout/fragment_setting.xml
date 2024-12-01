@@ -41,6 +41,7 @@
                 app:cardElevation="4dp">
 
                 <LinearLayout
+                    android:id="@+id/btnLayoutAccount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -64,7 +65,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/aclonica"
-                            android:text="Grooming"
+                            android:text="Account"
                             android:textSize="17sp"
                             android:textStyle="bold" />
 
@@ -72,7 +73,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Pet grooming services including bathing, nail trimming, and haircuts"
+                            android:text="Set up account information"
                             android:textColor="#757575"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -100,6 +101,7 @@
                     android:padding="16dp">
 
                     <ImageView
+                        android:id="@+id/btnLogout"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
                         android:padding="8dp"

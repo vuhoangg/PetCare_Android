@@ -62,19 +62,8 @@ public class EditPetActivity extends AppCompatActivity {
         edtNote.setText(intent.getStringExtra("PET_NOTE"));
         edtuserId_FK.setText(intent.getStringExtra("PET_USERID"));
 
-
-
-
         // Thiết lập sự kiện lưu thông tin khi người dùng nhấn nút "Save"
         btnEditPet.setOnClickListener(v -> {
-            // Lấy dữ liệu người dùng từ EditText
-//            String PetName = edtPetName.getText().toString();
-//            String Color = edtColor.getText().toString();
-//            String imageUrl =  edtimageUrl.getText().toString();
-//            String PetBirth = edtPetBirth.getText().toString();
-//            String Sex = edtSex.getText().toString();
-//            String Note = edtNote.getText().toString();
-//            String userId_FK = edtuserId_FK.getText().toString();
 
             // Lấy dữ liệu từ các EditText
             String petName = edtPetName.getText().toString();

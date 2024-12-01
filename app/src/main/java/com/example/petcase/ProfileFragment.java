@@ -69,6 +69,8 @@ public class ProfileFragment extends Fragment {
         lblDateAndTime.setText(fmtDateAndTime.format(myCalendar.getTime()));
     }
 
+
+
     @SuppressLint("ScheduleExactAlarm")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,11 +101,11 @@ public class ProfileFragment extends Fragment {
 
         // Phần trong sự kiện Save
         btnSave.setOnClickListener(v -> {
-            String reminderMessage = titleInput.getText().toString().trim();
+            String message = titleInput.getText().toString().trim();
             String date = DateFormat.getDateInstance().format(myCalendar.getTime());
             String time = DateFormat.getTimeInstance().format(myCalendar.getTime());
 
-            if (reminderMessage.isEmpty()) {
+            if (message.isEmpty()) {
                 Toast.makeText(getContext(), "Please enter a title!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -121,7 +123,7 @@ public class ProfileFragment extends Fragment {
             String reminderId = UUID.randomUUID().toString(); // Tạo UUID duy nhất cho mỗi reminder
 
             // Tạo đối tượng Reminder để cập nhật
-            Reminders reminder = new Reminders(reminderId, petId, date, time, reminderMessage);
+            Reminders reminder = new Reminders(reminderId, petId, date, time, message);
 
             // Cập nhật Reminder trong Firebase
             databaseReminders.child(reminderId).setValue(reminder)
@@ -130,10 +132,15 @@ public class ProfileFragment extends Fragment {
                             // Thiết lập báo thức
                             AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
                             Intent intent = new Intent(getContext(), AlarmReceiver.class);
-                            intent.putExtra("MESSAGE", reminderMessage); // Chuyển thông điệp của reminder vào Intent
+                            intent.putExtra("MESSAGE", message); // Chuyển thông điệp của reminder vào Intent
 
                             PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                                    getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                    getContext(),
+                                    0,
+                                    intent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                            );
+
 
                             alarmManager.setExact(
                                     AlarmManager.RTC_WAKEUP,

@@ -9,14 +9,14 @@
     app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="360dp"
-        android:layout_height="match_parent">
+        android:layout_width="370dp"
+        android:layout_height="70dp">
 
 
         <ImageView
             android:id="@+id/ImgReminder"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:scaleType="centerCrop"
             android:src="@drawable/img"
             app:layout_constraintStart_toStartOf="parent"
@@ -89,6 +89,18 @@
                 app:layout_constraintTop_toTopOf="@+id/dateReminder" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/btnDeleteReminder"
+            android:layout_width="80dp"
+            android:layout_height="35dp"
+            android:layout_marginEnd="28dp"
+            android:layout_marginBottom="4dp"
+            android:backgroundTint="#64B5F6"
+            android:text="Delete"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

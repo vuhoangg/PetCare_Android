@@ -26,7 +26,11 @@ public class CRUDUserActivity extends AppCompatActivity {
 
     // Khai báo biến Button
     private Button AddUser;
-    private EditText edtUserName, edtEmail, edtPhone, edtAdress;
+    private EditText edtUserName;
+    private EditText edtEmail;
+    private EditText edtPhone;
+    private EditText edtAdress;
+    private EditText edtPassword;
     private RecyclerView recyclerView;
     private UserAdapter userAdapter;
     private List<User> userList;
@@ -43,6 +47,7 @@ public class CRUDUserActivity extends AppCompatActivity {
         edtEmail = findViewById(R.id.edtBirthPet);
         edtPhone = findViewById(R.id.edtColor);
         edtAdress = findViewById(R.id.edtimageUrl);
+        edtPassword = findViewById(R.id.edtPassword);
 
         // Đặt sự kiện onClick cho Button
         AddUser.setOnClickListener(new View.OnClickListener() {
@@ -54,6 +59,7 @@ public class CRUDUserActivity extends AppCompatActivity {
                 String userEmail = edtEmail.getText().toString();
                 String userPhone = edtPhone.getText().toString();
                 String userAddress = edtAdress.getText().toString();
+                String userPassword = edtPassword.getText().toString();
 
                 // Tạo kết nối đến Firebase
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -62,7 +68,7 @@ public class CRUDUserActivity extends AppCompatActivity {
                 // Tạo một bản ghi mới với ID tự động
                 String userId = myRef.push().getKey();
 
-                User newUser = new User(userId, userName, userEmail, userPhone, userAddress);
+                User newUser = new User(userId, userName, userEmail, userPhone, userAddress, userPassword);
 //                Toast.makeText(CRUDUserActivity.this, newUser.userName.toString() , Toast.LENGTH_SHORT).show();
                 // Lưu dữ liệu vào Firebases
                 if (userId != null) {

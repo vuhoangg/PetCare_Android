@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.example.petcase.Domain.Pet;
 import com.example.petcase.Domain.Reminders;
 import com.example.petcase.EditPetActivity;
+import com.example.petcase.EditReminderActivity;
 import com.example.petcase.HomeFragment;
 import com.example.petcase.PetFragment;
 import com.example.petcase.R;
@@ -50,6 +51,51 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
         holder.edtDateReminder.setText(reminder.getDate());
 
 
+        // Thiết lập sự kiện click cho nút Sửa
+        holder.ImgReminder.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), EditReminderActivity.class);
+            intent.putExtra("REMINDER_ID", reminder.getReminderId());
+            intent.putExtra("PET_ID", reminder.getPetId());
+            intent.putExtra("REMINDER_DATE", reminder.getDate());
+            intent.putExtra("REMINDER_TIME", reminder.getTime());
+            intent.putExtra("REMINDER_MESSAGE", reminder.getMessage());
+            v.getContext().startActivity(intent);
+        });
+
+
+
+        // Thiết lập sự kiện click cho nút Xóa
+        holder.btnDeleteReminder.setOnClickListener(v -> {
+            if (reminder.getReminderId() == null) {
+                Toast.makeText(v.getContext(), "User ID is null", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("Reminders").child(reminder.getReminderId());
+
+            myRef.removeValue().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(v.getContext(), "reminderList deleted successfully", Toast.LENGTH_SHORT).show();
+                    // Kiểm tra `position` có hợp lệ không trước khi xóa
+                    if (position >= 0 && position < reminderList.size()) {
+                        reminderList.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, reminderList.size());  // Cập nhật lại vị trí
+                    }
+                } else {
+                    Exception e = task.getException();
+                    if (e != null) {
+                        Log.e("Firebase", "Error deleting reminderList", e);
+                    }
+                    Toast.makeText(v.getContext(), "Failed to delete reminderList", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(e -> {
+                Toast.makeText(v.getContext(), "Firebase operation failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            });
+        });
+
+
     }
 
     @Override
@@ -59,6 +105,8 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
 
     public static class ReminderViewHolder extends RecyclerView.ViewHolder {
         TextView edtMasagerReminder, edtDateReminder;
+        ImageView ImgReminder;
+        Button btnDeleteReminder;
 
 
 
@@ -66,6 +114,10 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
             super(itemView);
             edtMasagerReminder = itemView.findViewById(R.id.edtMasagerReminder);
             edtDateReminder = itemView.findViewById(R.id.edtDateReminder);
+            ImgReminder = itemView.findViewById(R.id.ImgReminder);
+            btnDeleteReminder = itemView.findViewById(R.id.btnDeleteReminder);
+
+
         }
     }
 }

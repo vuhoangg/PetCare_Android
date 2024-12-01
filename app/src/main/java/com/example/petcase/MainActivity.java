@@ -1,6 +1,7 @@
 package com.example.petcase;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -24,6 +25,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Kiểm tra xem có User ID không
+        String userId = getIntent().getStringExtra("USER_ID");
+        if (userId == null || userId.isEmpty()) {
+            // Nếu không có User ID, quay lại màn hình đăng nhập
+            Intent loginIntent = new Intent(this, LoginActivity.class);
+            startActivity(loginIntent);
+            finish();
+            return;
+        }
+
+        setContentView(R.layout.activity_main);
 
         // Khởi tạo EdgeToEdge (chỉ hỗ trợ từ Android 13 trở lên)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

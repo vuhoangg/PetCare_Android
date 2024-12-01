@@ -19,6 +19,7 @@
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,14 +28,25 @@
         android:theme="@style/Theme.PetCase"
         tools:targetApi="31">
         <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditHealthRecordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditReminderActivity"
+            android:exported="false" />
+        <activity
             android:name=".SelectPet"
             android:exported="false" />
         <activity
             android:name=".AddHealthRecord"
-            android:exported="false" />
-        <activity
-            android:name=".HomeActivity"
-            android:exported="false" />
+            android:exported="false" /> <!-- <activity -->
+        <!-- android:name=".HomeActivity" -->
+        <!-- android:exported="false" /> -->
         <activity
             android:name=".AddPetActivity"
             android:exported="false" />
@@ -53,10 +65,11 @@
             android:name=".CRUDUserActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

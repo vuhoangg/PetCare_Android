@@ -1,6 +1,5 @@
 package com.example.petcase.Adapter;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,16 +10,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.petcase.AddHealthRecord;
 import com.example.petcase.Domain.Pet;
 import com.example.petcase.EditPetActivity;
-import com.example.petcase.EditUserActivity;
-import com.example.petcase.HomeActivity;
-import com.example.petcase.HomeFragment;
 import com.example.petcase.PetFragment;
 import com.example.petcase.R;
 import com.google.firebase.database.DatabaseReference;
@@ -60,7 +55,6 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
 
             // Pass the pet data to the new activity
             intent.putExtra("petId", pet.getPetId());
-
             // Mở HomeActivity
             v.getContext().startActivity(intent);
         });
