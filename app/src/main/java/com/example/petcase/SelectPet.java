@@ -4,6 +4,7 @@ import static java.security.AccessController.getContext;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,9 +36,9 @@ public class SelectPet extends AppCompatActivity {
 
         // Lấy UserId từ Intent
         userId_FK = getIntent().getStringExtra("USER_ID");
-
+        Log.d("SelectPet", "User ID nhận được: " + userId_FK);
         // Kiểm tra xem userId có được truyền sang hay không
-        Toast.makeText(SelectPet.this, "User ID: " + userId_FK, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(SelectPet.this, "User ID: " + userId_FK, Toast.LENGTH_SHORT).show();
 
 
         recyclerView = findViewById(R.id.recyclerView);
@@ -52,8 +53,16 @@ public class SelectPet extends AppCompatActivity {
     }
 
     private void fetchPetsFromFirebase(String userId) {
+        userId = userId_FK;
         DatabaseReference petRef = FirebaseDatabase.getInstance().getReference("Pet");
-        petRef.orderByChild("userId_FK").equalTo(userId_FK)
+
+        // Kiểm tra userId_FK trước khi thực hiện truy vấn
+        if (userId == null || userId.isEmpty()) {
+            Toast.makeText(SelectPet.this, "User ID không hợp lệ.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        petRef.orderByChild("userId_FK").equalTo(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -77,7 +86,6 @@ public class SelectPet extends AppCompatActivity {
                         Toast.makeText(SelectPet.this, "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-
     }
 
     private void onPetSelected(Pet pet) {
