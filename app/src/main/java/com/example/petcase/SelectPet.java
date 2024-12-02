@@ -1,5 +1,7 @@
 package com.example.petcase;
 
+import static java.security.AccessController.getContext;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -24,11 +26,19 @@ public class SelectPet extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SelectPetAdapter selectPetAdapter;
     private List<Pet> petList = new ArrayList<>();
+    private String userId_FK; // Biến lưu UserId
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_pet);
+
+        // Lấy UserId từ Intent
+        userId_FK = getIntent().getStringExtra("USER_ID");
+
+        // Kiểm tra xem userId có được truyền sang hay không
+        Toast.makeText(SelectPet.this, "User ID: " + userId_FK, Toast.LENGTH_SHORT).show();
+
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -38,33 +48,36 @@ public class SelectPet extends AppCompatActivity {
         recyclerView.setAdapter(selectPetAdapter);
 
         // Truy xuất dữ liệu từ Firebase
-        fetchPetsFromFirebase();
+        fetchPetsFromFirebase(userId_FK);
     }
 
-    private void fetchPetsFromFirebase() {
+    private void fetchPetsFromFirebase(String userId) {
         DatabaseReference petRef = FirebaseDatabase.getInstance().getReference("Pet");
-        petRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                petList.clear(); // Xóa danh sách cũ trước khi thêm mới
-                for (DataSnapshot petSnapshot : snapshot.getChildren()) {
-                    Pet pet = petSnapshot.getValue(Pet.class);
-                    if (pet != null) {
-                        pet.setPetId(petSnapshot.getKey()); // Lưu `petId`
-                        petList.add(pet);
+        petRef.orderByChild("userId_FK").equalTo(userId_FK)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        petList.clear(); // Xóa danh sách cũ trước khi thêm mới
+                        if (snapshot.exists()) {
+                            for (DataSnapshot petSnapshot : snapshot.getChildren()) {
+                                Pet pet = petSnapshot.getValue(Pet.class);
+                                if (pet != null) {
+                                    pet.setPetId(petSnapshot.getKey());
+                                    petList.add(pet);
+                                }
+                            }
+                            selectPetAdapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(SelectPet.this, "Không có thú cưng nào được tìm thấy.", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-                if (petList.isEmpty()) {
-                    Toast.makeText(SelectPet.this, "Không có thú cưng để hiển thị.", Toast.LENGTH_SHORT).show();
-                }
-                selectPetAdapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(SelectPet.this, "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(SelectPet.this, "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
     }
 
     private void onPetSelected(Pet pet) {

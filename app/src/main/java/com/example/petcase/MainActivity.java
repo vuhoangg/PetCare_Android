@@ -75,7 +75,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Phương thức thay thế fragment và truyền userId
     private void replaceFragment(Fragment fragment) {
+        // Lấy userId từ Intent
+        String userId = getIntent().getStringExtra("USER_ID");
+        if (userId != null) {
+            Bundle bundle = new Bundle();
+            bundle.putString("USER_ID", userId);
+            fragment.setArguments(bundle);
+        }
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout, fragment);

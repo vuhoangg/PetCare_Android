@@ -9,10 +9,9 @@ public class User {
     private String address;
     private String password; // Thêm trường password
 
-    // Constructor mặc định
-    public User(String userId, String name, String email, String phone, String address) {
 
-    }
+    // Constructor mặc định (bắt buộc để Firebase sử dụng)
+    public User() {}
 
     // Constructor đầy đủ
     public User(String userId, String userName, String email, String phoneNumber, String address, String password) {

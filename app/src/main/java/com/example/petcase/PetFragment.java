@@ -1,5 +1,7 @@
 package com.example.petcase;
 
+import static android.content.Intent.getIntent;
+
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -32,6 +34,7 @@ public class PetFragment extends Fragment {
     private PetAdapter petAdapter;
     private List<Pet> petList;
     private Button addPetButton;
+    private String userId_FK;
 
     public PetFragment() {
         // Required empty public constructor
@@ -50,6 +53,7 @@ public class PetFragment extends Fragment {
         petList = new ArrayList<>();
         petAdapter = new PetAdapter(petList, this); // Sửa lại tên Adapter thành PetAdapter
         recyclerView.setAdapter(petAdapter);
+        userId_FK = getArguments().getString("USER_ID");
 
 
         // Ánh xạ button AddPet
@@ -65,30 +69,60 @@ public class PetFragment extends Fragment {
         });
 
         // Lấy dữ liệu từ Firebase
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Pet"); // Đảm bảo tham chiếu đúng
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                petList.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Pet pet = dataSnapshot.getValue(Pet.class);
-                    if (pet != null) {
-                        // Kiểm tra và đảm bảo rằng các thuộc tính quan trọng không null
-                        if (pet.getName() != null && pet.getImageUrl() != null && pet.getBirth() != null) {
-                            petList.add(pet);
-                        } else {
-                            Log.e("PetData", "Dữ liệu không hợp lệ: " + pet.toString());
-                        }
-                    }
-                }
-                petAdapter.notifyDataSetChanged();
-            }
+//        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Pet"); // Đảm bảo tham chiếu đúng
+//        databaseReference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                petList.clear();
+//                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+//                    Pet pet = dataSnapshot.getValue(Pet.class);
+//                    if (pet != null) {
+//                        // Kiểm tra và đảm bảo rằng các thuộc tính quan trọng không null
+//                        if (pet.getName() != null && pet.getImageUrl() != null && pet.getBirth() != null) {
+//                            petList.add(pet);
+//                        } else {
+//                            Log.e("PetData", "Dữ liệu không hợp lệ: " + pet.toString());
+//                        }
+//                    }
+//                }
+//                petAdapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        //
+
+        DatabaseReference petRef = FirebaseDatabase.getInstance().getReference("Pet");
+        petRef.orderByChild("userId_FK").equalTo(userId_FK)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        petList.clear(); // Xóa danh sách cũ trước khi thêm mới
+                        if (snapshot.exists()) {
+                            for (DataSnapshot petSnapshot : snapshot.getChildren()) {
+                                Pet pet = petSnapshot.getValue(Pet.class);
+                                if (pet != null) {
+                                    pet.setPetId(petSnapshot.getKey());
+                                    petList.add(pet);
+                                }
+                            }
+                            petAdapter.notifyDataSetChanged();
+                        } else
+                            Toast.makeText(getContext(), "Không có thú cưng nào được tìm thấy.", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(getContext(), "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
 
         return view; // Trả về view sau khi đã thiết lập các thành phần
     }

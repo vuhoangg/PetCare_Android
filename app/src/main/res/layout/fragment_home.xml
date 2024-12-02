@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+
     <!-- Profile Section với background màu xanh -->
     <androidx.cardview.widget.CardView
         android:id="@+id/profileSection"
@@ -20,6 +21,7 @@
         app:cardBackgroundColor="#64B5F6"
         app:cardElevation="0dp"
         app:layout_constraintTop_toTopOf="parent">
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -131,6 +133,7 @@
                     android:src="@drawable/baseline_edit_note_24" />
 
                 <TextView
+                    android:id="@+id/userIdTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -162,6 +165,7 @@
                     android:src="@drawable/baseline_settings_backup_restore_24" />
 
                 <TextView
+                    android:id="@+id/userNameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
