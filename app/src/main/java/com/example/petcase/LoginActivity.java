@@ -1,6 +1,8 @@
 package com.example.petcase;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -9,15 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.petcase.Domain.User;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -35,16 +29,25 @@ public class LoginActivity extends AppCompatActivity {
         // Khởi tạo FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
 
-        // Ánh xạ view
+        // Ánh xạ các View
+        initViews();
+
+        // Xử lý sự kiện
+        setupListeners();
+    }
+
+    private void initViews() {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
+    }
 
-        // Xử lý sự kiện đăng nhập
+    private void setupListeners() {
+        // Xử lý sự kiện nút đăng nhập
         btnLogin.setOnClickListener(v -> loginUser());
 
-        // Chuyển sang màn hình đăng ký
+        // Xử lý sự kiện chuyển sang màn hình đăng ký
         tvRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
@@ -56,8 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
 
         // Kiểm tra nhập liệu
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ email và mật khẩu", Toast.LENGTH_SHORT).show();
+        if (!validateInput(email, password)) {
             return;
         }
 
@@ -67,17 +69,52 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Đăng nhập thành công
                         FirebaseUser user = mAuth.getCurrentUser();
-                        Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-
-                        // Chuyển sang MainActivity
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra("USER_ID", user.getUid());
-                        startActivity(intent);
-                        finish();
+                        handleSuccessfulLogin(user);
                     } else {
                         // Đăng nhập thất bại
                         Toast.makeText(LoginActivity.this, "Đăng nhập thất bại: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
+    private boolean validateInput(String email, String password) {
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đầy đủ email và mật khẩu", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void handleSuccessfulLogin(FirebaseUser user) {
+        if (user != null) {
+            // Lấy thông tin USER_ID từ FirebaseUser
+            String newUserId = user.getUid();
+
+            // Lấy thông tin SharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("Pet", Context.MODE_PRIVATE);
+            String currentUserId = sharedPreferences.getString("USER_ID", null);
+
+            // Kiểm tra nếu tài khoản mới khác tài khoản hiện tại
+            if (currentUserId != null && !currentUserId.equals(newUserId)) {
+                // Xóa dữ liệu tài khoản cũ
+                sharedPreferences.edit().clear().apply();
+            }
+
+            // Lưu thông tin tài khoản mới
+            sharedPreferences.edit()
+                    .putString("USER_ID", newUserId)
+                    .apply();
+
+            Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
+
+            // Chuyển sang MainActivity
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra("USER_ID", newUserId);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, "Lỗi: Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

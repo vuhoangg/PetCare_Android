@@ -1,6 +1,8 @@
 package com.example.petcase;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -54,6 +56,12 @@ public class SettingFragment extends Fragment {
 
         // Hiển thị thông báo đăng xuất thành công
         Toast.makeText(getActivity(), "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
+
+        // Khi người dùng nhấn nút Đăng xuất
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("Pet", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear(); // Xóa toàn bộ dữ liệu trong SharedPreferences
+        editor.apply();
 
         // Điều hướng người dùng trở lại màn hình đăng nhập
         Intent intent = new Intent(getActivity(), LoginActivity.class);
