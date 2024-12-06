@@ -68,4 +68,5 @@ public class LightSensorHandler {
     public interface OnLightSensorChangedCallback {
         void onLightSensorChanged(float lux);
     }
+
 }
